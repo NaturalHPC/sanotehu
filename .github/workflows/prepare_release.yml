@@ -11,8 +11,13 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - name: Write a basic comment
+      - name: Get changes from the CHANGELOG.md file
+        id: changelog
+        uses: $/.github/workflows/parse_changelog.yml
+      - name: Post preview of the release description
         uses: thollander/actions-comment-pull-request@v3
         with:
           message: |
-            Hello world! :wave:
+            Here's a preview of the release description if you merge this PR:
+
+            ${{ fromJSON(steps.changelog.outputs.changes) }}
