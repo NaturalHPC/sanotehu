@@ -7,6 +7,7 @@ on:
 jobs:
   describe_release:
     name: Describe release for an admin to check that all is well
+    runs-on: linux
     steps:
       - name: Write a basic comment
         uses: thollander/actions-comment-pull-request@v3
