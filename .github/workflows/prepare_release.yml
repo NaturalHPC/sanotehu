@@ -5,19 +5,21 @@ on:
     branches: main
 
 jobs:
+  parse_changelog:
+    name: Get changes from the CHANGELOG.md file
+    uses: $/.github/workflows/parse_changelog.yml
+
   describe_release:
     name: Describe release for an admin to check that all is well
+    needs: parse_changelog
     runs-on: ubuntu-slim
     permissions:
       pull-requests: write
     steps:
-      - name: Get changes from the CHANGELOG.md file
-        id: changelog
-        uses: $/.github/workflows/parse_changelog.yml
       - name: Post preview of the release description
         uses: thollander/actions-comment-pull-request@v3
         with:
           message: |
             Here's a preview of the release description if you merge this PR:
 
-            ${{ fromJSON(steps.changelog.outputs.changes) }}
+            ${{ fromJSON(needs.parse_changelog.outputs.changes) }}
