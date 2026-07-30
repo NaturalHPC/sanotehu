@@ -10,6 +10,8 @@ jobs:
     name: Release the package
     runs-on: ubuntu-slim
     if: ${{ github.event.pull_request.merged }}
+    permissions:
+      contents: write
     steps:
       - name: Test variables
         run: |
