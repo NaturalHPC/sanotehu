@@ -7,7 +7,7 @@ on:
 
 jobs:
   describe_release:
-    name: Perform all actions necessary to release the package
+    name: Release the package
     runs-on: ubuntu-slim
     if: ${{ github.event.pull_request.merged }}
     steps:
@@ -21,7 +21,7 @@ jobs:
         run: |
           echo "${{ github.event.pull_request.title }}"
           if echo "${{ github.event.pull_request.title }}" | grep -q 'Release \([0-9]\+\.[0-9]\+\.[0-9]\+\)' ; then
-              echo '${{ github.event.pull_request.title }}' | sed -e 's/Release \([0-9]\+\.[0-9]\+\.[0-9]\+\)/release_version=\1/') >> $GITHUB_ENV
+              echo '${{ github.event.pull_request.title }}' | sed -e 's/Release \([0-9]\+\.[0-9]\+\.[0-9]\+\)/release_version=\1/' >> $GITHUB_ENV
           fi
 
       - name: Check out the repository
@@ -29,6 +29,7 @@ jobs:
 
       - name: Tag the released version with a version tag
         run: |
+          echo "${release_version}"
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git tag -a -m "Release ${release_version}" "v${release_version}" "${{ github.event.pull_request.merge_commit_sha }}"
