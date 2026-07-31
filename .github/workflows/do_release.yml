@@ -6,33 +6,32 @@ on:
     types: [closed]
 
 jobs:
-  describe_release:
+  get_description:
+    name: Get version and description from the CHANGELOG.md and overview.txt files
+    uses: $/.github/workflows/create_release_description.yml
+
+  do_release:
     name: Release the package
+    needs: [get_description]
     runs-on: ubuntu-slim
     if: ${{ github.event.pull_request.merged }}
     permissions:
       contents: write
     steps:
-      - name: Test variables
-        run: |
-          echo "${{ github.event.pull_request.title }}"
-          echo "${{ github.actor }}"
-          echo "${{ github.event.pull_request.merge_commit_sha }}"
-
-      - name: Determine the release version from the PR title
-        run: |
-          echo "${{ github.event.pull_request.title }}"
-          if echo "${{ github.event.pull_request.title }}" | grep -q 'Release \([0-9]\+\.[0-9]\+\.[0-9]\+\)' ; then
-              echo '${{ github.event.pull_request.title }}' | sed -e 's/Release \([0-9]\+\.[0-9]\+\.[0-9]\+\)/release_version=\1/' >> $GITHUB_ENV
-          fi
-
       - name: Check out the repository
         uses: actions/checkout@v6
 
       - name: Tag the released version with a version tag
         run: |
-          echo "${release_version}"
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git tag -a -m "Release ${release_version}" "v${release_version}" "${{ github.event.pull_request.merge_commit_sha }}"
+          git tag -a -m "Release ${{ needs.get_description.outputs.version }}" "v${{ needs.get_description.outputs.version }}" "${{ github.event.pull_request.merge_commit_sha }}"
           git push --tags
+
+      - name: Make a GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ needs.get_description.outputs.version }}
+          name: Sanotehu ${{ needs.get_description.outputs.version }}
+          body: ${{ fromJSON(needs.get_description.outputs.description) }}
+

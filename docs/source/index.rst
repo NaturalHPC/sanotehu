@@ -6,7 +6,14 @@
 sanotehu documentation
 ======================
 
-A repository for testing a more automated release mechanism
+..
+    The overview is included from this separate file because that same file is used by
+    the release automation when creating a description for GitHub (and Zenodo, if
+    configured). Whatever is in there needs to be both valid ReStructuredText and valid
+    Markdown, and should be a paragraph or two describing the software. Use one line per
+    paragraph, with empty lines in between, or the Markdown won't linewrap properly.
+
+.. include:: overview.txt
 
 
 .. toctree::

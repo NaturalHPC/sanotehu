@@ -1,0 +1,49 @@
+name: Create release description
+
+on:
+  workflow_call:
+    outputs:
+      version:
+        description: |
+          String containing the most recent version in the CHANGELOG.md file
+        value: ${{ jobs.create_description.outputs.version }}
+      description:
+        description: |
+          JSON string containing the release description
+        value: ${{ jobs.create_description.outputs.description }}
+
+jobs:
+  create_description:
+    name: Create a release description from the project description and change log
+    runs-on: ubuntu-slim
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      description: ${{ steps.create_description.outputs.description }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v6
+
+      - id: get_overview
+        name: Get the overview from the documentation
+        run: |
+          OVERVIEW="$(awk -v RS="\0" -v ORS="" '{gsub(/\n/,"\\n") ; printf "\"%s\"",$0}' docs/source/overview.txt)"
+          echo "overview=$OVERVIEW" >> $GITHUB_OUTPUT
+
+      - id: get_version
+        name: Get most recent version from CHANGELOG.md
+        run: |
+          VERSION="$(awk '$1=="##" {$0 = substr($0, 4);print;exit}' CHANGELOG.md)"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - id: get_changes
+        name: Get most recent changes from CHANGELOG.md
+        run: |
+          CHANGES="$(awk 'BEGIN {s=0} ; $1=="##" {s=s+1;next} ; $1 ~ /^##/ {$0 = substr($0, 2)} ; s==1 {print}' CHANGELOG.md | awk -v RS="\0" -v ORS="" '{gsub(/\n/,"\\n") ; printf "\"%s\"",$0}')"
+          echo "changes=$CHANGES" >> $GITHUB_OUTPUT
+
+      - id: create_description
+        name: Create a description for the release
+        run: |
+          DESC="$(echo -E "\"# Sanotehu "${{ steps.get_version.outputs.version }}"\\n\\n"${{ steps.get_overview.outputs.overview }}"\\n\\n"${{ steps.get_changes.outputs.changes }}"\"")"
+          echo "description=$DESC" >> $GITHUB_OUTPUT
+

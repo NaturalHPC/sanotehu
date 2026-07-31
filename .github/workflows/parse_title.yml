@@ -1,0 +1,30 @@
+name: Parse title
+
+on:
+  workflow_call:
+    inputs:
+      title:
+        required: true
+        type: string
+    outputs:
+      version:
+        description: |
+          String containing the version in the title
+        value: ${{ jobs.parse_title.outputs.version }}
+
+jobs:
+  parse_title:
+    name: Extract the version part of the title
+    runs-on: ubuntu-slim
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - id: get_version
+        name: Extract the version part of the title
+        run: |
+          VERSION="$(echo '${{ inputs.title }}' | sed -e 's/Release \([0-9]\+\.[0-9]\+\.[0-9]\+\)/\1/')"
+          if [ "${{ inputs.title }}" == "${VERSION}" ] ; then
+              VERSION="**(parse error in title)**"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
