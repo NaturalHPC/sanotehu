@@ -1,0 +1,6 @@
+Sanotehu is a content-less test package used for developing a new release automation setup.
+
+Why you should not use it:
+
+- It doesn't do anything
+

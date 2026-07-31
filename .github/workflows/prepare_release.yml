@@ -16,17 +16,17 @@ jobs:
     with:
       title: ${{ github.event.pull_request.title }}
 
-  parse_changelog:
-    name: Get version and changes from the CHANGELOG.md file
-    uses: $/.github/workflows/parse_changelog.yml
+  get_description:
+    name: Get version and description from the CHANGELOG.md and overview.txt files
+    uses: $/.github/workflows/create_release_description.yml
 
   report_error:
     name: Report error if the versions in the title and in the CHANGELOG don't match
     needs:
       - parse_title
-      - parse_changelog
+      - get_description
     runs-on: ubuntu-slim
-    if: ${{ needs.parse_title.outputs.version != needs.parse_changelog.outputs.version }}
+    if: ${{ needs.parse_title.outputs.version != needs.get_description.outputs.version }}
     permissions:
       pull-requests: write
     steps:
@@ -36,17 +36,20 @@ jobs:
           message: >
             **ERROR** This PR is for release ${{ needs.parse_title.outputs.version }}
             but the most recent version in CHANGELOG.md is
-            ${{ needs.parse_changelog.outputs.version }}. Please ensure that the title
+            ${{ needs.get_description.outputs.version }}. Please ensure that the title
             of this PR matches `Release x.y.z` exactly, and that the topmost `##` entry
             in CHANGELOG.md is for the exact same version.
+      - name: Fail the check
+        run: exit 1
+
 
   describe_release:
     name: Describe release for an admin to check that all is well
     needs:
       - parse_title
-      - parse_changelog
+      - get_description
     runs-on: ubuntu-slim
-    if: ${{ needs.parse_title.outputs.version == needs.parse_changelog.outputs.version }}
+    if: ${{ needs.parse_title.outputs.version == needs.get_description.outputs.version }}
     permissions:
       pull-requests: write
     steps:
@@ -56,6 +59,5 @@ jobs:
           message: |
             Here's a preview of the release description if you merge this PR:
 
-            # Sanotehu ${{ needs.parse_changelog.outputs.version }}
+            ${{ fromJSON(needs.get_description.outputs.description) }}
 
-            ${{ fromJSON(needs.parse_changelog.outputs.changes) }}
