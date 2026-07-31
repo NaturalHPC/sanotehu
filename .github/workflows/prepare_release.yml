@@ -3,6 +3,11 @@ name: Prepare release
 on:
   pull_request:
     branches: main
+    types:
+      - opened
+      - synchronize
+      - edited
+      - reopened
 
 jobs:
   parse_title:
