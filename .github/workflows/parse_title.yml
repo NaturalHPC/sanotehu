@@ -23,7 +23,7 @@ jobs:
         name: Extract the version part of the title
         run: |
           VERSION="$(echo '${{ inputs.title }}' | sed -e 's/Release \([0-9]\+\.[0-9]\+\.[0-9]\+\)/\1/')"
-          if [ "${VERSION%Release }" != "${VERSION}" ] ; then
+          if [ "${{ inputs.title }}" == "${VERSION}" ] ; then
               VERSION="**(parse error in title)**"
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
