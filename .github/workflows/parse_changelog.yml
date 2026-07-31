@@ -3,9 +3,13 @@ name: Parse changelog
 on:
   workflow_call:
     outputs:
+      version:
+        description: |
+          String containing the most recent version in the CHANGELOG.md file
+        value: ${{ jobs.parse_changelog.outputs.version }}
       changes:
         description: |
-          JSON string containing changes for this version from the CHANGELOG file
+          JSON string containing changes for this version from the CHANGELOG.md file
         value: ${{ jobs.parse_changelog.outputs.changes }}
 
 jobs:
@@ -13,12 +17,18 @@ jobs:
     name: Extract the changes for the most recent CHANGELOG.md entry
     runs-on: ubuntu-slim
     outputs:
-      changes: ${{ steps.parse_changelog.outputs.changes }}
+      version: ${{ steps.get_version.outputs.version }}
+      changes: ${{ steps.get_changes.outputs.changes }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@v6
-      - id: parse_changelog
-        name: Parse CHANGELOG.md
+      - id: get_version
+        name: Get most recent version from CHANGELOG.md
+        run: |
+          VERSION="$(awk '$1=="##" {$0 = substr($0, 4);print;exit}' CHANGELOG.md)"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - id: get_changes
+        name: Get most recent changes from CHANGELOG.md
         run: |
           CHANGES="$(awk 'BEGIN {s=0} ; $1=="##" {s=s+1;next} ; $1 ~ /^##/ {$0 = substr($0, 2)} ; s==1 {print}' CHANGELOG.md | awk -v RS="\0" -v ORS="" '{gsub(/\n/,"\\n") ; printf "\"%s\"",$0}')"
           echo "changes=$CHANGES" >> $GITHUB_OUTPUT
