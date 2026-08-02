@@ -3,4 +3,6 @@ Sanotehu is a content-less test package used for developing a new release automa
 Why you should not use it:
 
 - It doesn't do anything
+- You can't install it yet
+
 
