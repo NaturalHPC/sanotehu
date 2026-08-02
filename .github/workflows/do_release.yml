@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@v6
+        with:
+          ssh-key: ${{ secrets.RELEASE_KEY }}
 
       - name: Tag the released version with a version tag
         run: |
@@ -35,3 +37,10 @@ jobs:
           name: Sanotehu ${{ needs.get_description.outputs.version }}
           body: ${{ fromJSON(needs.get_description.outputs.description) }}
 
+      - name: Merge main back into develop
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git checkout develop
+          git merge --no-ff -X theirs main
+          git push
