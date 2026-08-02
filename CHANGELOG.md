@@ -6,6 +6,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.0.10
+
+### Fixed
+
+- Fetching of develop branch (twice!)
+
+### Doubts
+
+- Still no good?
+
 ## 0.0.9
 
 ### Fixed
