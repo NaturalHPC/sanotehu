@@ -6,6 +6,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.0.9
+
+### Fixed
+
+- Bug in do-release workflow
+
 ## 0.0.8
 
 ### Updates
