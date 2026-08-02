@@ -6,6 +6,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.0.8
+
+### Updates
+
+- Merge main back into develop post-release
+
 ## 0.0.7
 
 ### Updates
