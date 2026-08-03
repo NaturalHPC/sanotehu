@@ -11,7 +11,7 @@ jobs:
     uses: $/.github/workflows/create_release_description.yml
 
   do_release:
-    name: Release the package
+    name: Release on GitHub
     needs: [get_description]
     runs-on: ubuntu-slim
     if: ${{ github.event.pull_request.merged }}
@@ -51,3 +51,11 @@ jobs:
           git switch develop
           git merge --no-ff -X theirs main
           git push
+
+  release_to_pypi:
+      - name: Release to TestPyPI
+        needs: [get_description, do_release]
+        uses: $/.github/workflows/release_to_pypi.yml
+        with:
+          tag: v${{ needs.get_description.outputs.version }}
+

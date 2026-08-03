@@ -6,6 +6,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.0.12
+
+### Fixed
+
+- TestPyPI publishing
+
 ## 0.0.11
 
 ### Added
