@@ -42,7 +42,6 @@ jobs:
       - name: Fail the check
         run: exit 1
 
-
   describe_release:
     name: Describe release for an admin to check that all is well
     needs:
@@ -60,4 +59,32 @@ jobs:
             Here's a preview of the release description if you merge this PR:
 
             ${{ fromJSON(needs.get_description.outputs.description) }}
+
+  build-python-packages:
+    name: Build and test Python packages
+    needs: [get_description]
+    uses: $/.github/workflows/build_test_python_packages.yml
+    with:
+      ref: v${{ github.event.pull_request.head.ref }}
+
+  publish-to-testpypi:
+    name: Publish to TestPyPI
+    needs: [build-python-packages]
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/sanotehu
+    permissions:
+      id-token: write
+    steps:
+    - name: Download packages
+      uses: actions/download-artifact@v8
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Publish packages to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
 
