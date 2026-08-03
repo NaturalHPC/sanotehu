@@ -65,7 +65,7 @@ jobs:
     needs: [get_description]
     uses: $/.github/workflows/build_test_python_packages.yml
     with:
-      ref: v${{ github.event.pull_request.head.ref }}
+      ref: ${{ github.event.pull_request.head.ref }}
 
   publish-to-testpypi:
     name: Publish to TestPyPI
