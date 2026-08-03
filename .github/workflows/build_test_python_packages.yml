@@ -8,7 +8,7 @@ on:
         type: string
 
 jobs:
-  build_distribution:
+  build-distribution:
     name: Build distribution
     runs-on: ubuntu-slim
     steps:
