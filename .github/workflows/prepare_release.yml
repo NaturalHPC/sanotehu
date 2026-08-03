@@ -42,7 +42,6 @@ jobs:
       - name: Fail the check
         run: exit 1
 
-
   describe_release:
     name: Describe release for an admin to check that all is well
     needs:
@@ -60,4 +59,11 @@ jobs:
             Here's a preview of the release description if you merge this PR:
 
             ${{ fromJSON(needs.get_description.outputs.description) }}
+
+  build-python-packages:
+    name: Build and test Python packages
+    needs: [get_description]
+    uses: $/.github/workflows/build_test_python_packages.yml
+    with:
+      ref: ${{ github.event.pull_request.head.ref }}
 
