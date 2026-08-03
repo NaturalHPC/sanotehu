@@ -9,6 +9,12 @@ build:
   os: ubuntu-lts-latest
   tools:
     python: "3.13"
+  jobs:
+    # https://github.com/readthedocs/readthedocs.org/issues/10715
+    post_checkout:
+      - git fetch --tags
+    pre_install:
+      - git update-index --assume-unchanged docs/source/conf.py
 
 # Install the package before building so we can get the version
 python:
