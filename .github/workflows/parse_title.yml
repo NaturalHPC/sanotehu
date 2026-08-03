@@ -10,10 +10,10 @@ on:
       version:
         description: |
           String containing the version in the title
-        value: ${{ jobs.parse_title.outputs.version }}
+        value: ${{ jobs.parse-title.outputs.version }}
 
 jobs:
-  parse_title:
+  parse-title:
     name: Extract the version part of the title
     runs-on: ubuntu-slim
     outputs:
