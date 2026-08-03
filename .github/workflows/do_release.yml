@@ -54,7 +54,7 @@ jobs:
     with:
       ref: v${{ needs.get_description.outputs.version }}
 
-  publish-to-pypi:
+  publish-to-testpypi:
     name: Publish to TestPyPI
     needs: [build-python-packages]
     runs-on: ubuntu-latest
@@ -74,4 +74,24 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         repository-url: https://test.pypi.org/legacy/
+
+  publish-to-pypi:
+    name: Publish to PyPI
+    if: false
+    needs: [build-python-packages]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/sanotehu
+    permissions:
+      id-token: write
+    steps:
+    - name: Download packages
+      uses: actions/download-artifact@v8
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Publish packages to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
 

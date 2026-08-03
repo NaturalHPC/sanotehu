@@ -67,24 +67,3 @@ jobs:
     with:
       ref: ${{ github.event.pull_request.head.ref }}
 
-  publish-to-testpypi:
-    name: Publish to TestPyPI
-    needs: [build-python-packages]
-    runs-on: ubuntu-latest
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/p/sanotehu
-    permissions:
-      id-token: write
-    steps:
-    - name: Download packages
-      uses: actions/download-artifact@v8
-      with:
-        name: python-package-distributions
-        path: dist/
-
-    - name: Publish packages to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://test.pypi.org/legacy/
-
