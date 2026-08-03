@@ -6,11 +6,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.0.15
+
+### Fixed
+
+- TestPyPI publishing
+
 ## 0.0.14
 
 ### Fixed
 
-- TestPiPI publishing
+- TestPyPI publishing
 
 ### Vindications
 
