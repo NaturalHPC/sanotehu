@@ -6,6 +6,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.0.19
+
+### Fixed
+
+- GitHub release
+
 ## 0.0.18
 
 ### Added
