@@ -38,11 +38,6 @@ jobs:
           name: Sanotehu ${{ needs.get_description.outputs.version }}
           body: ${{ fromJSON(needs.get_description.outputs.description) }}
 
-      - name: Release to TestPyPI
-        uses: $/.github/workflows/release_to_pypi.yml
-        with:
-          tag: v${{ needs.get_description.outputs.version }}
-
       - name: Merge main back into develop
         run: |
           git config --global user.name "${{ github.actor }}"
