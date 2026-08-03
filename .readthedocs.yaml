@@ -14,7 +14,7 @@ build:
     post_checkout:
       - git fetch --tags
     pre_install:
-      - git update-index --assume-unchanged environment.yml docs/source/conf.py
+      - git update-index --assume-unchanged docs/source/conf.py
 
 # Install the package before building so we can get the version
 python:
