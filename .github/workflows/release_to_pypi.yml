@@ -35,8 +35,7 @@ jobs:
 
   publish-to-pypi:
     name: Publish to TestPyPI
-    needs:
-    - build
+    needs: [build_distribution]
     runs-on: ubuntu-slim
     environment:
       name: testpypi
