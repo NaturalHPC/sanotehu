@@ -6,6 +6,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.0.14
+
+### Fixed
+
+- TestPiPI publishing
+
+### Vindications
+
+- Indeed, that didn't work. But maybe this time.
+
 ## 0.0.13
 
 ### Fixed
