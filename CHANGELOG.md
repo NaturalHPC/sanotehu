@@ -6,6 +6,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.0.17
+
+### Fixed
+
+- Don't public to PyPI from a reusable workflow, that doesn't work
+
 ## 0.0.16
 
 ### Fixed

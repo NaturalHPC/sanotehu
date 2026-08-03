@@ -10,7 +10,7 @@ jobs:
     name: Get version and description from the CHANGELOG.md and overview.txt files
     uses: $/.github/workflows/create_release_description.yml
 
-  do_release:
+  tag_release:
     name: Release on GitHub
     needs: [get_description]
     runs-on: ubuntu-slim
@@ -47,12 +47,31 @@ jobs:
           git merge --no-ff -X theirs main
           git push
 
-  release_to_pypi:
-    name: Release to TestPyPI
-    needs: [get_description, do_release]
+  build-python-packages:
+    name: Build and test Python packages
+    needs: [get_description, tag_release]
+    uses: $/.github/workflows/build_test_python_packages.yml
+    with:
+      ref: v${{ needs.get_description.outputs.version }}
+
+  publish-to-pypi:
+    name: Publish to TestPyPI
+    needs: [build-python-packages]
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/sanotehu
     permissions:
       id-token: write
-    uses: $/.github/workflows/release_to_pypi.yml
-    with:
-      tag: v${{ needs.get_description.outputs.version }}
+    steps:
+    - name: Download packages
+      uses: actions/download-artifact@v8
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Publish packages to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
 
