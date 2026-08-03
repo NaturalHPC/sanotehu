@@ -6,6 +6,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.0.18
+
+### Added
+
+- Zenodo support
+- ReadTheDocs support
+- Upload to read PyPI
+
+### Cleanup
+
+- Spelling and leftover workflows
+
 ## 0.0.17
 
 ### Fixed
