@@ -15,8 +15,6 @@ jobs:
     needs: [get-description]
     runs-on: ubuntu-slim
     if: ${{ github.event.pull_request.merged }}
-    permissions:
-      contents: write
     steps:
       - name: Check out the repository
         uses: actions/checkout@v6
@@ -47,6 +45,8 @@ jobs:
     name: Make a GitHub release
     needs: [get-description, tag-release]
     runs-on: ubuntu-slim
+    permissions:
+      contents: write
     steps:
       - name: Check out the repository
         uses: actions/checkout@v6
