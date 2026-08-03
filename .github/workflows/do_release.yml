@@ -53,9 +53,9 @@ jobs:
           git push
 
   release_to_pypi:
-      - name: Release to TestPyPI
-        needs: [get_description, do_release]
-        uses: $/.github/workflows/release_to_pypi.yml
-        with:
-          tag: v${{ needs.get_description.outputs.version }}
+    name: Release to TestPyPI
+    needs: [get_description, do_release]
+    uses: $/.github/workflows/release_to_pypi.yml
+    with:
+      tag: v${{ needs.get_description.outputs.version }}
 
