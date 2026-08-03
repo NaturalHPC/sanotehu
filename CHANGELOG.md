@@ -6,6 +6,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.6.2
+
+### Fixed
+
+- ReadTheDocs version tag (again!)
+
 ## 0.6.1
 
 ### Fixed
