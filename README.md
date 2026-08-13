@@ -77,36 +77,62 @@ documentation, with a fallback to git and if that fails, "develop".
 Setting all this up involves connecting a bunch of cloud services together, and that's
 always finicky, but hopefully it'll go fairly smoothly with these instructions.
 
+### Creating a repository
+
+If you're setting up a brand new repository, then you need to get both a `main` and a
+`develop` branch started, with `develop` branched off of `main`, ideally before putting
+in content so that you can start doing that on `develop`. This can actually be done,
+like this:
+
+Make a new repository:
+
+```bash
+$ mkdir my_project
+$ cd my_project
+my_project$ git init
+```
+
+Create a main branch with no commits:
+
+```bash
+my_project$ git switch --orphan main
+```
+
+Create an empty commit on the main branch:
+
+```bash
+my_project$ git commit --allow-empty -m "Start of git history"
+```
+
+Create a develop branch starting at the initial commit:
+
+```bash
+my_project$ git switch -c develop
+```
+
+That completes the setup locally. To connect the repository to GitHub, use
+
+```bash
+my_project$ git remote add origin git@github.com:/organization/repository.git
+my_project$ git push --set-upstream origin --all
+```
+
+You can now start developing by branching a feature branch off of develop and adding
+commits.
+
+
 ### GitHub
 
 The automation for all this relies on four workflow files, which you'll find in
 `.github/workflows`, and need to put in the same directory in your repository. You'll
-want to replace the instance of "Sanotehu" in `create_release_description.yml` with the
-name of your package. In `do_release.yml`, you may want to add `if: false` to either
-`publish-to-testpypi` or `publish-to-pypi` to disable either as you're setting things
-up.
+want to replace the instances of "Sanotehu" in `create_release_description.yml` and
+`do_release.yml` with the name of your package. In `do_release.yml`, you may want to add
+`if: false` to either `publish-to-testpypi` or `publish-to-pypi` to disable either as
+you're setting things up.
 
-You don't have to protect the `develop` and `main` branches, but it's good practice and
-this set-up allows it. Navigate to your repository's settings on GitHub, select Rules ->
-Rulesets on the left, then create a new ruleset. Set `main` as a target branch, and
-choose the restrictions. For this repository, the following are set:
-
-- Restrict deletions
-- Require a pull request before merging
-- Require status checks to pass
-- Block force pushes
-
-For "Require status checks to pass", you'll need to specify which ones are required. If
-you have the workflows on GitHub, then you should be able to select "Describe release
-for an admin to check that all is well". This workflow job will only run if no errors
-were detected.
-
-Save the ruleset, then create another one, this time for `develop`. You can set the same
-restrictions, including "Require a pull request before merging". That's a good idea, but
-it does require building a way for the workflow to circumvent this protection, so that
-it can merge `main` back into `develop` during the release.
-
-To do that, we can [use a deploy
+Next, we need to set up a way for the release workflow to circumvent the usual branch
+protections, so that it can merge `main` back into `develop` during the release. To do
+that, we can [use a deploy
 key](https://github.com/orgs/community/discussions/25305#discussioncomment-10728028).
 This needs to be generated locally, using (on GNU/Linux):
 
@@ -118,13 +144,38 @@ where you replace the email address with your own. This will ask you for a passw
 which must be empty (just type Enter). You'll now have two files, `deploy_key` and
 `deploy_key.pub`.
 
-Go to your repository on GitHub, open the Settings, then select Deploy keys on the left.
-Add a new key with a descriptive name, and paste the contents of `deploy_key.pub` into
-the Key field. Check the "Allow write access" box, then add the key.
+Go to your repository on GitHub, open the Settings, then select "Deploy keys" on the
+left.  Add a new key with a descriptive name, and paste the contents of `deploy_key.pub`
+into the Key field. Check the "Allow write access" box, then add the key.
 
-Go back to Rulesets, edit the ruleset for `develop`, and use the "Add bypass" button to
-add a bypass for "Deploy keys". Select "Exempt" for the type of bypass, and save the
-ruleset using the button at the bottom.
+Next, we need to give the workflow access to the corresponding private key, so that it
+will be flagged as having a valid deploy key. To do that, Go to Settings, "Secrets and
+Variables", Actions, and then click "New repository secret". Name it `RELEASE_KEY`, and
+paste the contents of `deploy_key` into the box. Save the secret, and you should be good
+to go.
+
+With the exception set up, we can now protect the `develop` and `main` branches. You
+don't have to do that, but it's good practice and this set-up allows it. Navigate to
+your repository's settings on GitHub, select Rules -> Rulesets on the left, then create
+a new ruleset. Set `main` as a target branch, and choose the restrictions. For this
+repository, the following are set:
+
+- Restrict deletions
+- Require a pull request before merging
+- Require status checks to pass
+- Block force pushes
+
+Near the top, you need to use the "Add bypass" button to add a bypass for "Deploy keys".
+Select "Exempt" for the type of bypass.
+
+For "Require status checks to pass", you'll need to specify which ones are required. If
+you have the workflows on GitHub, then you should be able to select "Describe release
+for an admin to check that all is well". This workflow job will only run if no errors
+were detected.
+
+Save the ruleset, then create another one, this time for `develop`. You can set the same
+restrictions, including "Require a pull request before merging", as long as you've added
+the bypass for deploy keys to exempt the release workflow.
 
 ### Pyproject.toml
 
@@ -141,7 +192,9 @@ PyPI. There's
 on how to do that online. The workflow described on that page is already there, so you
 only have to do the part where you create a new PyPI project for your repository. Use
 `pypi` for the environment name on the real PyPI, and `testpypi` on TestPyPI. The
-pending publishers should then be picked up on your next release and made permanent.
+workflow name must be set to `do_release.yml`, as that's the one that makes the release
+and PyPI will reject the upload if it comes from a different workflow. The pending
+publishers should then be picked up on your next release and made permanent.
 
 ### Sphinx
 
@@ -156,7 +209,8 @@ gets included into the Sphinx documentation, and it gets read by the release wor
 and put into the description. Note that the Sphinx source is ReStructuredText, while the
 release description is MarkDown, so the formatting needs to be valid for both. Stick
 with a paragraph or two of plain text, and bullets are also okay, as shown in this
-repository.
+repository. Make sure that each paragraph is on a single line, because newlines are
+taken as such in Markdown causing the text to wrap poorly.
 
 When you create a new Sphinx `docs` directory using `sphinx-quickstart`, it asks you
 whether to put the sources and `conf.py` into `docs/source` or directly into `docs`.
@@ -167,7 +221,7 @@ have to tweak the workflows accordingly. A search-and-replace in
 
 ### ReadTheDocs
 
-ReadTheDocs can be set up as usualy, but needs a few extra settings to work with
+ReadTheDocs can be set up as usual, but needs a few extra settings to work with
 setuptools-scm, which you can take from `.readthedocs.yaml` in the root directory. The
 `post_checkout` operation will download the tags, so that `setuptools-scm` knows which
 version this is, and the `pre_install` keeps the local changes that RTD makes from
